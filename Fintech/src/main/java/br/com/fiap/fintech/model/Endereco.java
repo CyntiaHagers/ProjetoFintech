@@ -13,6 +13,11 @@ public class Endereco {
     private int idEndereco;
 
     // Construtor
+
+    public Endereco() {
+        // construtor padrão
+    }
+
     public Endereco(long idUsuario, int cep, String logradouro, String estado, String cidade,
                     String bairro, String residencia, String complemento, int idEndereco) {
         this.idUsuario = idUsuario;

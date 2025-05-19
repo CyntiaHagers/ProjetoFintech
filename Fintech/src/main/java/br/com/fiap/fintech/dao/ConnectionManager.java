@@ -20,7 +20,7 @@ public class ConnectionManager {
     public Connection getConnection() {
         Connection connection = null;
 
-        String url = "jdbc:oracle:thin:@oracle.fiap.com.br:1521 :ORCL";
+        String url = "jdbc:oracle:thin:@oracle.fiap.com.br:1521:ORCL";
         String user = "RM560885";
         String password = "080502";
 
