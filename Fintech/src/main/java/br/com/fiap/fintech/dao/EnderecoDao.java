@@ -122,7 +122,7 @@ public class EnderecoDao {
                         rs.getString("estado"),
                         rs.getString("cidade"),
                         rs.getString("bairro"),
-                        rs.getString("residencia"),
+                        rs.getString("nr_residencia"),
                         rs.getString("complemento"),
                         rs.getInt("id_endereco")
                 );
@@ -161,7 +161,7 @@ public class EnderecoDao {
                         rs.getString("estado"),
                         rs.getString("cidade"),
                         rs.getString("bairro"),
-                        rs.getString("residencia"),
+                        rs.getString("nr_residencia"),
                         rs.getString("complemento"),
                         rs.getInt("id_endereco")
                 );
@@ -180,6 +180,47 @@ public class EnderecoDao {
             }
         }
 
+        return lista;
+    }
+
+    // Novo método para buscar endereços pelo id do usuário
+    public List<Endereco> getByUsuario(long idUsuario) {
+        List<Endereco> lista = new ArrayList<>();
+        PreparedStatement stm = null;
+        ResultSet rs = null;
+        String sql = "SELECT * FROM tb_endereco WHERE id_usuario = ?";
+
+        try {
+            connection = ConnectionManager.getInstance().getConnection();
+            stm = connection.prepareStatement(sql);
+            stm.setLong(1, idUsuario);
+            rs = stm.executeQuery();
+
+            while (rs.next()) {
+                Endereco endereco = new Endereco(
+                        rs.getLong("id_usuario"),
+                        rs.getInt("cep"),
+                        rs.getString("logradouro"),
+                        rs.getString("estado"),
+                        rs.getString("cidade"),
+                        rs.getString("bairro"),
+                        rs.getString("nr_residencia"),
+                        rs.getString("complemento"),
+                        rs.getInt("id_endereco")
+                );
+                lista.add(endereco);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stm != null) stm.close();
+                if (connection != null) connection.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
         return lista;
     }
 }
