@@ -143,7 +143,7 @@
 
     <!-- Seção Direita -->
     <div class="right-section">
-        <img src="./resources/login.PNG" alt="Cofrinho">
+        <img src="./resources/login.png"Cofrinho">
     </div>
 </div>
 
