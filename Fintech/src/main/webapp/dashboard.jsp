@@ -245,10 +245,9 @@
   <div class="sidebar">
     <h2>FinanceEasy</h2>
     <a href="dashboard.jsp">Página Principal</a>
-    <a href="endereco.jsp">Endereço</a>
-    <a href="alertas.jsp">Alertas</a>
+    <a href="endereco.jsp">Endereços </a>
     <a href="contas.jsp">Contas</a>
-    <a href="configuracoes.jsp">Configurações</a>
+    <a href="configuracoes.jsp">Transações</a>
     <a href="LogoutServlet" class="mt-5">Sair</a>
   </div>
 
