@@ -2,24 +2,23 @@ package br.com.fiap.fintech.model;
 
 public class Endereco {
 
-    private long idUsuario; // Altere para idUsuario
-    private String cep;
+    private int idEndereco;        // PK
+    private long idUsuario;        // FK para TB_USUARIO
+    private String cep;            // Pode ser String para manter zeros à esquerda
     private String logradouro;
     private String estado;
     private String cidade;
     private String bairro;
-    private String residencia;
+    private int residencia;        // Número da residência como int
     private String complemento;
-    private int idEndereco;
 
-    // Construtor
+    // Construtor padrão
+    public Endereco() {}
 
-    public Endereco() {
-        // construtor padrão
-    }
-
-    public Endereco(long idUsuario, String cep, String logradouro, String estado, String cidade,
-                    String bairro, String residencia, String complemento, int idEndereco) {
+    // Construtor com parâmetros (opcional)
+    public Endereco(int idEndereco, long idUsuario, String cep, String logradouro, String estado,
+                    String cidade, String bairro, int residencia, String complemento) {
+        this.idEndereco = idEndereco;
         this.idUsuario = idUsuario;
         this.cep = cep;
         this.logradouro = logradouro;
@@ -28,12 +27,19 @@ public class Endereco {
         this.bairro = bairro;
         this.residencia = residencia;
         this.complemento = complemento;
-        this.idEndereco = idEndereco;
     }
 
     // Getters e Setters
+    public int getIdEndereco() {
+        return idEndereco;
+    }
+
+    public void setIdEndereco(int idEndereco) {
+        this.idEndereco = idEndereco;
+    }
+
     public long getIdUsuario() {
-        return idUsuario; // Corrigido para idUsuario
+        return idUsuario;
     }
 
     public void setIdUsuario(long idUsuario) {
@@ -44,7 +50,7 @@ public class Endereco {
         return cep;
     }
 
-    public void setCep( String cep) {
+    public void setCep(String cep) {
         this.cep = cep;
     }
 
@@ -80,11 +86,11 @@ public class Endereco {
         this.bairro = bairro;
     }
 
-    public String getResidencia() {
+    public int getResidencia() {
         return residencia;
     }
 
-    public void setResidencia(String residencia) {
+    public void setResidencia(int residencia) {
         this.residencia = residencia;
     }
 
@@ -95,12 +101,5 @@ public class Endereco {
     public void setComplemento(String complemento) {
         this.complemento = complemento;
     }
-
-    public int getIdEndereco() {
-        return idEndereco;
-    }
-
-    public void setIdEndereco(int idEndereco) {
-        this.idEndereco = idEndereco;
-    }
 }
+
