@@ -2,12 +2,14 @@ package br.com.fiap.fintech.controller;
 
 import br.com.fiap.fintech.dao.EnderecoDao;
 import br.com.fiap.fintech.model.Endereco;
+import br.com.fiap.fintech.model.Usuario;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 import java.util.List;
@@ -77,6 +79,19 @@ public class EnderecoServlet extends HttpServlet {
             endereco.setIdEndereco(id);
         }
 
+        // Obter o usuário logado da sessão
+        HttpSession session = request.getSession();
+        Usuario usuario = (Usuario) session.getAttribute("usuarioLogado");
+        
+        if (usuario != null) {
+            // Definir o ID do usuário no objeto endereco
+            endereco.setIdUsuario(usuario.getId());
+        } else {
+            // Se não há usuário logado, redirecionar para login
+            response.sendRedirect("LoginServlet");
+            return;
+        }
+    
         endereco.setCep(request.getParameter("cep"));
         endereco.setLogradouro(request.getParameter("logradouro"));
         endereco.setEstado(request.getParameter("estado"));
