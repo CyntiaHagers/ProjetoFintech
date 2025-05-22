@@ -3,7 +3,7 @@ package br.com.fiap.fintech.model;
 public class Endereco {
 
     private long idUsuario; // Altere para idUsuario
-    private int cep;
+    private String cep;
     private String logradouro;
     private String estado;
     private String cidade;
@@ -18,7 +18,7 @@ public class Endereco {
         // construtor padrão
     }
 
-    public Endereco(long idUsuario, int cep, String logradouro, String estado, String cidade,
+    public Endereco(long idUsuario, String cep, String logradouro, String estado, String cidade,
                     String bairro, String residencia, String complemento, int idEndereco) {
         this.idUsuario = idUsuario;
         this.cep = cep;
@@ -40,11 +40,11 @@ public class Endereco {
         this.idUsuario = idUsuario;
     }
 
-    public int getCep() {
+    public String getCep() {
         return cep;
     }
 
-    public void setCep(int cep) {
+    public void setCep( String cep) {
         this.cep = cep;
     }
 

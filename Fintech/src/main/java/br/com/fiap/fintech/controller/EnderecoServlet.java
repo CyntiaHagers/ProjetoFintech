@@ -3,9 +3,11 @@ package br.com.fiap.fintech.controller;
 import br.com.fiap.fintech.dao.EnderecoDao;
 import br.com.fiap.fintech.model.Endereco;
 
-import jakarta.servlet.*;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.*;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.util.List;
@@ -16,76 +18,88 @@ public class EnderecoServlet extends HttpServlet {
     private EnderecoDao enderecoDao;
 
     @Override
-    public void init() {
-        enderecoDao = new EnderecoDao();
+    public void init() throws ServletException {
+        enderecoDao = new EnderecoDao(); // ou injeção, como preferir
     }
 
-    // Para exibir a lista de endereços do usuário logado
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
-        HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("id_usuario") == null) {
-            response.sendRedirect("login.jsp");
-            return;
-        }
-
-        long idUsuario = (Long) session.getAttribute("id_usuario");
-
-        // Aqui, crie um método no DAO para listar só os endereços do usuário (vamos criar depois)
-        List<Endereco> listaEnderecos = enderecoDao.getByUsuario(idUsuario);
-
-        request.setAttribute("listaEnderecos", listaEnderecos);
-        RequestDispatcher dispatcher = request.getRequestDispatcher("endereco.jsp");
-        dispatcher.forward(request, response);
-    }
-
-    // Para salvar e deletar
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
-        HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("id_usuario") == null) {
-            response.sendRedirect("login.jsp");
-            return;
-        }
-
-        long idUsuario = (Long) session.getAttribute("id_usuario");
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String action = request.getParameter("action");
 
-        if ("delete".equals(action)) {
-            int id = Integer.parseInt(request.getParameter("id"));
-            enderecoDao.delete(id);
-            response.sendRedirect("endereco");
-        } else if ("save".equals(action)) {
-            // pega dados do formulário
-            int cep = Integer.parseInt(request.getParameter("cep"));
-            String logradouro = request.getParameter("logradouro");
-            String estado = request.getParameter("estado");
-            String cidade = request.getParameter("cidade");
-            String bairro = request.getParameter("bairro");
-            String residencia = request.getParameter("residencia");
-            String complemento = request.getParameter("complemento");
-
-            Endereco endereco = new Endereco();
-            endereco.setIdUsuario(idUsuario);
-            endereco.setCep(cep);
-            endereco.setLogradouro(logradouro);
-            endereco.setEstado(estado);
-            endereco.setCidade(cidade);
-            endereco.setBairro(bairro);
-            endereco.setResidencia(residencia);
-            endereco.setComplemento(complemento);
-
-            enderecoDao.save(endereco);
-
-            response.sendRedirect("endereco");
+        if ("form".equals(action)) {
+            abrirFormulario(request, response);
         } else {
-            // caso ação desconhecida, redireciona para lista
+            listarEnderecos(request, response);
+        }
+    }
+
+    private void abrirFormulario(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String id = request.getParameter("id");
+        Endereco endereco;
+
+        if (id != null && !id.isEmpty()) {
+            // editar: buscar endereço por id
+            endereco = enderecoDao.getById(Integer.parseInt(id));
+        } else {
+            // novo endereço vazio
+            endereco = new Endereco();
+        }
+
+        request.setAttribute("endereco", endereco);
+        request.getRequestDispatcher("formEndereco.jsp").forward(request, response);
+    }
+
+    private void listarEnderecos(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        List<Endereco> listaEnderecos = enderecoDao.getAll();
+        request.setAttribute("listaEnderecos", listaEnderecos);
+        request.getRequestDispatcher("endereco.jsp").forward(request, response);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String action = request.getParameter("action");
+
+        if ("save".equals(action)) {
+            salvarEndereco(request, response);
+        } else if ("delete".equals(action)) {
+            deletarEndereco(request, response);
+        } else {
             response.sendRedirect("endereco");
         }
     }
-}
 
+    private void salvarEndereco(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String idStr = request.getParameter("id");
+        int id = (idStr == null || idStr.isEmpty()) ? 0 : Integer.parseInt(idStr);
+
+        Endereco endereco = new Endereco();
+        if (id != 0) {
+            endereco.setIdEndereco(id);
+        }
+
+        endereco.setCep(request.getParameter("cep"));
+        endereco.setLogradouro(request.getParameter("logradouro"));
+        endereco.setEstado(request.getParameter("estado"));
+        endereco.setCidade(request.getParameter("cidade"));
+        endereco.setBairro(request.getParameter("bairro"));
+        endereco.setResidencia(request.getParameter("residencia"));
+        endereco.setComplemento(request.getParameter("complemento"));
+
+        if (id == 0) {
+            enderecoDao.save(endereco);
+        } else {
+            enderecoDao.update(endereco);
+        }
+
+        response.sendRedirect("endereco");
+    }
+
+    private void deletarEndereco(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String idStr = request.getParameter("id");
+        if (idStr != null && !idStr.isEmpty()) {
+            int id = Integer.parseInt(idStr);
+            enderecoDao.delete(id);
+        }
+        response.sendRedirect("endereco");
+    }
+}

@@ -8,20 +8,16 @@ import java.util.List;
 
 public class EnderecoDao {
 
-    private Connection connection;
-
     public void save(Endereco endereco) {
-        PreparedStatement stm = null;
         String sql = "INSERT INTO tb_endereco " +
-                "(id_endereco, id_usuario, cep, logradouro, estado, cidade, bairro, nr_residencia, complemento) " +
+                "(id_endereco, tb_usuario_id_usuario, nr_cep, nm_logradouro, sg_estado, nm_cidade, nm_bairro, nr_residencia, ds_complemento) " +
                 "VALUES (seq_tb_endereco.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        try {
-            connection = ConnectionManager.getInstance().getConnection();
-            stm = connection.prepareStatement(sql);
+        try (Connection connection = ConnectionManager.getInstance().getConnection();
+             PreparedStatement stm = connection.prepareStatement(sql)) {
 
             stm.setLong(1, endereco.getIdUsuario());
-            stm.setInt(2, endereco.getCep());
+            stm.setString(2, endereco.getCep());  // mudou para String
             stm.setString(3, endereco.getLogradouro());
             stm.setString(4, endereco.getEstado());
             stm.setString(5, endereco.getCidade());
@@ -34,26 +30,17 @@ public class EnderecoDao {
 
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            try {
-                if (stm != null) stm.close();
-                if (connection != null) connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
     }
 
     public void update(Endereco endereco) {
-        PreparedStatement stm = null;
         String sql = "UPDATE tb_endereco SET id_usuario = ?, cep = ?, logradouro = ?, estado = ?, cidade = ?, bairro = ?, nr_residencia = ?, complemento = ? WHERE id_endereco = ?";
 
-        try {
-            connection = ConnectionManager.getInstance().getConnection();
-            stm = connection.prepareStatement(sql);
+        try (Connection connection = ConnectionManager.getInstance().getConnection();
+             PreparedStatement stm = connection.prepareStatement(sql)) {
 
             stm.setLong(1, endereco.getIdUsuario());
-            stm.setInt(2, endereco.getCep());
+            stm.setString(2, endereco.getCep());  // mudou para String
             stm.setString(3, endereco.getLogradouro());
             stm.setString(4, endereco.getEstado());
             stm.setString(5, endereco.getCidade());
@@ -67,23 +54,15 @@ public class EnderecoDao {
 
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            try {
-                if (stm != null) stm.close();
-                if (connection != null) connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
     }
 
     public void delete(int id) {
-        PreparedStatement stm = null;
         String sql = "DELETE FROM tb_endereco WHERE id_endereco = ?";
 
-        try {
-            connection = ConnectionManager.getInstance().getConnection();
-            stm = connection.prepareStatement(sql);
+        try (Connection connection = ConnectionManager.getInstance().getConnection();
+             PreparedStatement stm = connection.prepareStatement(sql)) {
+
             stm.setInt(1, id);
 
             int result = stm.executeUpdate();
@@ -91,115 +70,82 @@ public class EnderecoDao {
 
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            try {
-                if (stm != null) stm.close();
-                if (connection != null) connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
     }
 
-    public Endereco getEndereçoById(int id) {
-        PreparedStatement stm = null;
-        ResultSet rs = null;
+    public Endereco getById(int idEndereco) {
+        String sql = "SELECT * FROM tb_endereco WHERE id_endereco = ?";
         Endereco endereco = null;
 
-        String sql = "SELECT * FROM tb_endereco WHERE id_endereco = ?";
+        try (Connection connection = ConnectionManager.getInstance().getConnection();
+             PreparedStatement stm = connection.prepareStatement(sql)) {
 
-        try {
-            connection = ConnectionManager.getInstance().getConnection();
-            stm = connection.prepareStatement(sql);
-            stm.setInt(1, id);
-
-            rs = stm.executeQuery();
-            if (rs.next()) {
-                endereco = new Endereco(
-                        rs.getLong("id_usuario"),
-                        rs.getInt("cep"),
-                        rs.getString("logradouro"),
-                        rs.getString("estado"),
-                        rs.getString("cidade"),
-                        rs.getString("bairro"),
-                        rs.getString("nr_residencia"),
-                        rs.getString("complemento"),
-                        rs.getInt("id_endereco")
-                );
+            stm.setInt(1, idEndereco);
+            try (ResultSet rs = stm.executeQuery()) {
+                if (rs.next()) {
+                    endereco = new Endereco(
+                            rs.getLong("id_usuario"),
+                            rs.getString("cep"), // mudou para String
+                            rs.getString("logradouro"),
+                            rs.getString("estado"),
+                            rs.getString("cidade"),
+                            rs.getString("bairro"),
+                            rs.getString("nr_residencia"),
+                            rs.getString("complemento"),
+                            rs.getInt("id_endereco")
+                    );
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (stm != null) stm.close();
-                if (connection != null) connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
 
         return endereco;
     }
 
-    public List<Endereco> getAll() {
+    public List<Endereco> getByUsuario(long idUsuario) {
         List<Endereco> lista = new ArrayList<>();
-        PreparedStatement stm = null;
-        ResultSet rs = null;
-        String sql = "SELECT * FROM tb_endereco";
+        String sql = "SELECT * FROM tb_endereco WHERE id_usuario = ?";
 
-        try {
-            connection = ConnectionManager.getInstance().getConnection();
-            stm = connection.prepareStatement(sql);
-            rs = stm.executeQuery();
+        try (Connection connection = ConnectionManager.getInstance().getConnection();
+             PreparedStatement stm = connection.prepareStatement(sql)) {
 
-            while (rs.next()) {
-                Endereco endereco = new Endereco(
-                        rs.getLong("id_usuario"),
-                        rs.getInt("cep"),
-                        rs.getString("logradouro"),
-                        rs.getString("estado"),
-                        rs.getString("cidade"),
-                        rs.getString("bairro"),
-                        rs.getString("nr_residencia"),
-                        rs.getString("complemento"),
-                        rs.getInt("id_endereco")
-                );
-                lista.add(endereco);
+            stm.setLong(1, idUsuario);
+            try (ResultSet rs = stm.executeQuery()) {
+                while (rs.next()) {
+                    Endereco endereco = new Endereco(
+                            rs.getLong("id_usuario"),
+                            rs.getString("cep"),
+                            rs.getString("logradouro"),
+                            rs.getString("estado"),
+                            rs.getString("cidade"),
+                            rs.getString("bairro"),
+                            rs.getString("nr_residencia"),
+                            rs.getString("complemento"),
+                            rs.getInt("id_endereco")
+                    );
+                    lista.add(endereco);
+                }
             }
-
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (stm != null) stm.close();
-                if (connection != null) connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
 
         return lista;
     }
 
-    // Novo método para buscar endereços pelo id do usuário
-    public List<Endereco> getByUsuario(long idUsuario) {
+    public List<Endereco> getAll() {
         List<Endereco> lista = new ArrayList<>();
-        PreparedStatement stm = null;
-        ResultSet rs = null;
-        String sql = "SELECT * FROM tb_endereco WHERE id_usuario = ?";
+        String sql = "SELECT * FROM tb_endereco";
 
-        try {
-            connection = ConnectionManager.getInstance().getConnection();
-            stm = connection.prepareStatement(sql);
-            stm.setLong(1, idUsuario);
-            rs = stm.executeQuery();
+        try (Connection connection = ConnectionManager.getInstance().getConnection();
+             PreparedStatement stm = connection.prepareStatement(sql);
+             ResultSet rs = stm.executeQuery()) {
 
             while (rs.next()) {
                 Endereco endereco = new Endereco(
                         rs.getLong("id_usuario"),
-                        rs.getInt("cep"),
+                        rs.getString("cep"),
                         rs.getString("logradouro"),
                         rs.getString("estado"),
                         rs.getString("cidade"),
@@ -210,17 +156,12 @@ public class EnderecoDao {
                 );
                 lista.add(endereco);
             }
+
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (stm != null) stm.close();
-                if (connection != null) connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
+
         return lista;
     }
 }
+

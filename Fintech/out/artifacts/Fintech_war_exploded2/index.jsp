@@ -1,3 +1,4 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -123,13 +124,10 @@
                 Não tem uma conta? <a href="cadastro.jsp" class="text-info">Criar Conta</a>
             </div>
 
-            <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-
             <c:if test="${not empty erro}">
-                <div class="alert alert-danger w-100" role="alert" style="margin-bottom: 1rem;">
-                        ${erro}
-                </div>
+                <div class="alert alert-danger">${erro}</div>
             </c:if>
+
 
             <form action="LoginServlet" method="post" class="w-100">
                 <div class="mb-3">
@@ -145,7 +143,7 @@
 
     <!-- Seção Direita -->
     <div class="right-section">
-        <img src="./resources/login.PNG" alt="Cofrinho">
+        <img src="./resources/login.png"Cofrinho">
     </div>
 </div>
 
@@ -154,4 +152,3 @@
 
 </body>
 </html>
-

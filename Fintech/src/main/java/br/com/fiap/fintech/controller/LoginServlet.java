@@ -32,13 +32,13 @@ public class LoginServlet extends HttpServlet {
                 response.sendRedirect("dashboard.jsp");
             } else {
                 request.setAttribute("erro", "Email ou senha inválidos.");
-                request.getRequestDispatcher("login.jsp").forward(request, response);
+                request.getRequestDispatcher("index.jsp").forward(request, response);
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
             request.setAttribute("erro", "Erro ao acessar o banco de dados.");
-            request.getRequestDispatcher("login.jsp").forward(request, response);
+            request.getRequestDispatcher("index.jsp").forward(request, response);
         }
     }
 }
