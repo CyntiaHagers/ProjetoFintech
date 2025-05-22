@@ -5,7 +5,7 @@
   Usuario usuarioLogado = (sessao != null) ? (Usuario) sessao.getAttribute("usuarioLogado") : null;
 
   if (usuarioLogado == null) {
-    response.sendRedirect("index.jsp");
+    response.sendRedirect("login.jsp");
     return;
   }
 %>

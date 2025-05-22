@@ -1,226 +1,103 @@
 package br.com.fiap.fintech.dao;
 
 import br.com.fiap.fintech.model.Endereco;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class EnderecoDao {
 
-    private Connection connection;
+    private Connection conexao;
 
-    public void save(Endereco endereco) {
-        PreparedStatement stm = null;
-        String sql = "INSERT INTO tb_endereco " +
-                "(id_endereco, id_usuario, cep, logradouro, estado, cidade, bairro, nr_residencia, complemento) " +
-                "VALUES (seq_tb_endereco.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?)";
+    public EnderecoDao(Connection conexao) {
+        this.conexao = conexao;
+    }
 
-        try {
-            connection = ConnectionManager.getInstance().getConnection();
-            stm = connection.prepareStatement(sql);
+    public void save(Endereco endereco) throws SQLException {
+        String sql = endereco.getIdEndereco() == 0 ?
+                "INSERT INTO TB_ENDERECO (ID_ENDERECO, TB_USUARIO_ID_USUARIO, NR_CEP, NM_LOGRADOURO, SG_ESTADO, NM_CIDADE, NM_BAIRRO, NR_RESIDENCIA, DS_COMPLEMENTO) " +
+                        "VALUES (SEQ_ENDERECO.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?)" :
+                "UPDATE TB_ENDERECO SET TB_USUARIO_ID_USUARIO=?, NR_CEP=?, NM_LOGRADOURO=?, SG_ESTADO=?, NM_CIDADE=?, NM_BAIRRO=?, NR_RESIDENCIA=?, DS_COMPLEMENTO=? WHERE ID_ENDERECO=?";
 
-            stm.setLong(1, endereco.getIdUsuario());
-            stm.setInt(2, endereco.getCep());
-            stm.setString(3, endereco.getLogradouro());
-            stm.setString(4, endereco.getEstado());
-            stm.setString(5, endereco.getCidade());
-            stm.setString(6, endereco.getBairro());
-            stm.setString(7, endereco.getResidencia());
-            stm.setString(8, endereco.getComplemento());
+        try (PreparedStatement stmt = conexao.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            stmt.setLong(1, endereco.getIdUsuario());
 
-            int result = stm.executeUpdate();
-            System.out.println("Endereço salvo com sucesso! Linhas afetadas: " + result);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
+            // Limpa o CEP, deixando só números
+            String cepNumerico = endereco.getCep() != null ? endereco.getCep().replaceAll("\\D", "") : "";
+            long cepLong = 0;
             try {
-                if (stm != null) stm.close();
-                if (connection != null) connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
+                if (!cepNumerico.isEmpty()) {
+                    cepLong = Long.parseLong(cepNumerico);
+                }
+            } catch (NumberFormatException e) {
+                throw new SQLException("CEP inválido: " + cepNumerico);
+            }
+            stmt.setLong(2, cepLong);
+
+            stmt.setString(3, endereco.getLogradouro());
+            stmt.setString(4, endereco.getEstado());
+            stmt.setString(5, endereco.getCidade());
+            stmt.setString(6, endereco.getBairro());
+            stmt.setInt(7, endereco.getResidencia());
+            stmt.setString(8, endereco.getComplemento());
+
+            if (endereco.getIdEndereco() != 0) {
+                stmt.setInt(9, endereco.getIdEndereco());
+                stmt.executeUpdate();
+            } else {
+                stmt.executeUpdate();
+                try (ResultSet rs = stmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        endereco.setIdEndereco(rs.getInt(1));
+                    }
+                }
             }
         }
     }
 
-    public void update(Endereco endereco) {
-        PreparedStatement stm = null;
-        String sql = "UPDATE tb_endereco SET id_usuario = ?, cep = ?, logradouro = ?, estado = ?, cidade = ?, bairro = ?, nr_residencia = ?, complemento = ? WHERE id_endereco = ?";
-
-        try {
-            connection = ConnectionManager.getInstance().getConnection();
-            stm = connection.prepareStatement(sql);
-
-            stm.setLong(1, endereco.getIdUsuario());
-            stm.setInt(2, endereco.getCep());
-            stm.setString(3, endereco.getLogradouro());
-            stm.setString(4, endereco.getEstado());
-            stm.setString(5, endereco.getCidade());
-            stm.setString(6, endereco.getBairro());
-            stm.setString(7, endereco.getResidencia());
-            stm.setString(8, endereco.getComplemento());
-            stm.setInt(9, endereco.getIdEndereco());
-
-            int result = stm.executeUpdate();
-            System.out.println("Endereço atualizado! Linhas afetadas: " + result);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (stm != null) stm.close();
-                if (connection != null) connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
+    public Endereco getById(int idEndereco) throws SQLException {
+        String sql = "SELECT * FROM TB_ENDERECO WHERE ID_ENDERECO=?";
+        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
+            stmt.setInt(1, idEndereco);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Endereco e = new Endereco();
+                    e.setIdEndereco(rs.getInt("ID_ENDERECO"));
+                    e.setIdUsuario(rs.getLong("TB_USUARIO_ID_USUARIO"));
+                    e.setCep(String.valueOf(rs.getLong("NR_CEP")));
+                    e.setLogradouro(rs.getString("NM_LOGRADOURO"));
+                    e.setEstado(rs.getString("SG_ESTADO"));
+                    e.setCidade(rs.getString("NM_CIDADE"));
+                    e.setBairro(rs.getString("NM_BAIRRO"));
+                    e.setResidencia(rs.getInt("NR_RESIDENCIA"));
+                    e.setComplemento(rs.getString("DS_COMPLEMENTO"));
+                    return e;
+                }
             }
         }
+        return null;
     }
 
-    public void delete(int id) {
-        PreparedStatement stm = null;
-        String sql = "DELETE FROM tb_endereco WHERE id_endereco = ?";
-
-        try {
-            connection = ConnectionManager.getInstance().getConnection();
-            stm = connection.prepareStatement(sql);
-            stm.setInt(1, id);
-
-            int result = stm.executeUpdate();
-            System.out.println("Endereço excluído! Linhas afetadas: " + result);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (stm != null) stm.close();
-                if (connection != null) connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public Endereco getEndereçoById(int id) {
-        PreparedStatement stm = null;
-        ResultSet rs = null;
-        Endereco endereco = null;
-
-        String sql = "SELECT * FROM tb_endereco WHERE id_endereco = ?";
-
-        try {
-            connection = ConnectionManager.getInstance().getConnection();
-            stm = connection.prepareStatement(sql);
-            stm.setInt(1, id);
-
-            rs = stm.executeQuery();
-            if (rs.next()) {
-                endereco = new Endereco(
-                        rs.getLong("id_usuario"),
-                        rs.getInt("cep"),
-                        rs.getString("logradouro"),
-                        rs.getString("estado"),
-                        rs.getString("cidade"),
-                        rs.getString("bairro"),
-                        rs.getString("nr_residencia"),
-                        rs.getString("complemento"),
-                        rs.getInt("id_endereco")
-                );
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (stm != null) stm.close();
-                if (connection != null) connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return endereco;
-    }
-
-    public List<Endereco> getAll() {
+    public List<Endereco> getAll() throws SQLException {
         List<Endereco> lista = new ArrayList<>();
-        PreparedStatement stm = null;
-        ResultSet rs = null;
-        String sql = "SELECT * FROM tb_endereco";
-
-        try {
-            connection = ConnectionManager.getInstance().getConnection();
-            stm = connection.prepareStatement(sql);
-            rs = stm.executeQuery();
-
+        String sql = "SELECT * FROM TB_ENDERECO";
+        try (Statement stmt = conexao.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
-                Endereco endereco = new Endereco(
-                        rs.getLong("id_usuario"),
-                        rs.getInt("cep"),
-                        rs.getString("logradouro"),
-                        rs.getString("estado"),
-                        rs.getString("cidade"),
-                        rs.getString("bairro"),
-                        rs.getString("nr_residencia"),
-                        rs.getString("complemento"),
-                        rs.getInt("id_endereco")
-                );
-                lista.add(endereco);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (stm != null) stm.close();
-                if (connection != null) connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return lista;
-    }
-
-    // Novo método para buscar endereços pelo id do usuário
-    public List<Endereco> getByUsuario(long idUsuario) {
-        List<Endereco> lista = new ArrayList<>();
-        PreparedStatement stm = null;
-        ResultSet rs = null;
-        String sql = "SELECT * FROM tb_endereco WHERE id_usuario = ?";
-
-        try {
-            connection = ConnectionManager.getInstance().getConnection();
-            stm = connection.prepareStatement(sql);
-            stm.setLong(1, idUsuario);
-            rs = stm.executeQuery();
-
-            while (rs.next()) {
-                Endereco endereco = new Endereco(
-                        rs.getLong("id_usuario"),
-                        rs.getInt("cep"),
-                        rs.getString("logradouro"),
-                        rs.getString("estado"),
-                        rs.getString("cidade"),
-                        rs.getString("bairro"),
-                        rs.getString("nr_residencia"),
-                        rs.getString("complemento"),
-                        rs.getInt("id_endereco")
-                );
-                lista.add(endereco);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (rs != null) rs.close();
-                if (stm != null) stm.close();
-                if (connection != null) connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
+                Endereco e = new Endereco();
+                e.setIdEndereco(rs.getInt("ID_ENDERECO"));
+                e.setIdUsuario(rs.getLong("TB_USUARIO_ID_USUARIO"));
+                e.setCep(String.valueOf(rs.getLong("NR_CEP")));
+                e.setLogradouro(rs.getString("NM_LOGRADOURO"));
+                e.setEstado(rs.getString("SG_ESTADO"));
+                e.setCidade(rs.getString("NM_CIDADE"));
+                e.setBairro(rs.getString("NM_BAIRRO"));
+                e.setResidencia(rs.getInt("NR_RESIDENCIA"));
+                e.setComplemento(rs.getString("DS_COMPLEMENTO"));
+                lista.add(e);
             }
         }
         return lista;
     }
 }
+
