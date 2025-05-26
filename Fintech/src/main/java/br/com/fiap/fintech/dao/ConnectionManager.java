@@ -17,7 +17,7 @@ public class ConnectionManager {
         return connectionManager;
     }
 
-    public Connection getConnection() {
+    public static Connection getConnection() {
         Connection connection = null;
 
         String url = "jdbc:oracle:thin:@oracle.fiap.com.br:1521:ORCL";
