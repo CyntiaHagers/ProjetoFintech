@@ -247,7 +247,7 @@
     <a href="dashboard.jsp">Página Principal</a>
     <a href="endereco.jsp">Endereços </a>
     <a href="contas.jsp">Contas</a>
-    <a href="configuracoes.jsp">Transações</a>
+    <a href="transacao">Transações</a>
     <a href="LogoutServlet" class="mt-5">Sair</a>
   </div>
 

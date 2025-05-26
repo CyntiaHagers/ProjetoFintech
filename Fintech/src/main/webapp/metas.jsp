@@ -178,13 +178,17 @@
       text-decoration: none;
       display: inline-block;
       transition: background-color 0.3s;
-      align-self: center;
-      margin-top: auto;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1050;
+      box-shadow: 0 0 10px #0df2c4aa;
     }
     .btn-metas:hover {
       background-color: #25357a;
       color: white;
     }
+
   </style>
 </head>
 <body>
@@ -353,10 +357,8 @@
 </div>
 
 <!-- Botão fixo fora do container -->
-<a href="dashboard.jsp" class="btn-metas"
-   style="position: fixed; bottom: 20px; right: 20px; z-index: 1050; box-shadow: 0 0 10px #0df2c4aa;">
-  ← Voltar para o Dashboard
-</a>
+<a href="dashboard.jsp" class="btn-metas">← Voltar para página principal</a>
+
 
 <script src="resources/js/bootstrap.bundle.min.js"></script>
 </body>

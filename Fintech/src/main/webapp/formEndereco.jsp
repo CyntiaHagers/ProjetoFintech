@@ -103,6 +103,28 @@
     .col-half {
       flex: 1 1 48%;
     }
+    .btn-metas {
+      background-color: #1c2753;
+      color: white;
+      border: none;
+      padding: 0.7rem 1.5rem;
+      font-size: 1.1rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: background-color 0.3s;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1050;
+      box-shadow: 0 0 10px #0df2c4aa;
+    }
+    .btn-metas:hover {
+      background-color: #25357a;
+      color: white;
+    }
+
   </style>
 </head>
 <body>
@@ -156,6 +178,9 @@
 
   </form>
 </div>
+<!-- Botão fixo fora do container -->
+<a href="dashboard.jsp" class="btn-metas">← Voltar para página principal</a>
+
 </body>
 </html>
 
