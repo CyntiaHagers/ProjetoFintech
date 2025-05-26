@@ -99,7 +99,7 @@
 
 <!-- Botão fixo "Voltar para página principal" -->
 <div class="btn-voltar">
-  <a href="${pageContext.request.contextPath}/dashboard.jsp" class="btn-metas">
+  <a href="${pageContext.request.contextPath}/dashboard" class="btn-metas">
     ← Voltar para página principal
   </a>
 </div>

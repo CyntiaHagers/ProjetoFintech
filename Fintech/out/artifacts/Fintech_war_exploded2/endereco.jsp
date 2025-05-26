@@ -152,7 +152,7 @@
 </div>
 
 <!-- Botão voltar fixo igual página de metas -->
-<a href="dashboard.jsp" class="btn-metas">← Voltar para página principal</a>
+<a href="dashboard" class="btn-metas">← Voltar para página principal</a>
 
 </body>
 </html>

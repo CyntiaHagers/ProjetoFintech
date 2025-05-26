@@ -357,7 +357,7 @@
 </div>
 
 <!-- Botão fixo fora do container -->
-<a href="dashboard.jsp" class="btn-metas">← Voltar para página principal</a>
+<a href="dashboard" class="btn-metas">← Voltar para página principal</a>
 
 
 <script src="resources/js/bootstrap.bundle.min.js"></script>

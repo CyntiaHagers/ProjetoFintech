@@ -179,7 +179,7 @@
   </form>
 </div>
 <!-- Botão fixo fora do container -->
-<a href="dashboard.jsp" class="btn-metas">← Voltar para página principal</a>
+<a href="dashboard" class="btn-metas">← Voltar para página principal</a>
 
 </body>
 </html>

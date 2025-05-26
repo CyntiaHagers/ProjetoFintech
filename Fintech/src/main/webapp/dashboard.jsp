@@ -1,5 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="br.com.fiap.fintech.model.Usuario" %>
+<%@ page import="br.com.fiap.fintech.model.Meta" %>
+<%@ page import="java.util.List" %>
 <%
   HttpSession sessao = request.getSession(false);
   Usuario usuarioLogado = (sessao != null) ? (Usuario) sessao.getAttribute("usuarioLogado") : null;
@@ -332,8 +334,20 @@
 
     <h5>Minhas Metas</h5>
     <ul class="list-group list-group-flush mb-4">
-      <li class="list-group-item">Viajar - R$ 3.000</li>
-      <li class="list-group-item">Reserva Emergência - R$ 5.000</li>
+      <%
+        List<Meta> metas = (List<Meta>) request.getAttribute("listaMetas");
+        if (metas != null && !metas.isEmpty()) {
+          for (Meta meta : metas) {
+      %>
+      <li class="list-group-item"><%= meta.getNome() %> - R$ <%= String.format("%.2f", meta.getValor()) %></li>
+      <%
+        }
+      } else {
+      %>
+      <li class="list-group-item">Você ainda não possui metas cadastradas.</li>
+      <%
+        }
+      %>
     </ul>
     <a href="meta" class="btn-metas">Ver Metas</a>
 
