@@ -335,7 +335,8 @@
       <li class="list-group-item">Viajar - R$ 3.000</li>
       <li class="list-group-item">Reserva Emergência - R$ 5.000</li>
     </ul>
-    <a href="metas.jsp" class="btn-metas">Ver Metas</a>
+    <a href="meta" class="btn-metas">Ver Metas</a>
+
   </div>
 </div>
 
@@ -362,6 +363,8 @@
       plugins: { legend: { display: false } }
     }
   });
+</script>
+
 
   const ctxPizza = document.getElementById('graficoPizza').getContext('2d');
   new Chart(ctxPizza, {
