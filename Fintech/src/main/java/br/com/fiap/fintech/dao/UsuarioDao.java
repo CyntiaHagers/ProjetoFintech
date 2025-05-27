@@ -11,8 +11,9 @@ public class UsuarioDao {
     private Connection conexao;
 
     public UsuarioDao() throws SQLException {
-        conexao = ConnectionManager.getInstance().getConnection();
+        conexao = ConnectionManager.getConnection();  // método static chamado diretamente
     }
+
 
     public void fecharConexao() throws SQLException {
         if (conexao != null && !conexao.isClosed()) {
@@ -21,15 +22,37 @@ public class UsuarioDao {
     }
 
     public void cadastrarUsuario(Usuario usuario) throws SQLException {
-        String sql = "INSERT INTO tb_usuario (id_usuario, nr_cpf, nm_usuario, nm_email, ds_senha) VALUES (seq_id_usuario.nextval, ?, ?, ?, ?)";
+        if (usuarioExiste(usuario.getCpf())) {
+            throw new SQLException("Usuário com este CPF já está cadastrado.");
+        }
+
+        // Buscar o próximo ID da sequência
+        long idUsuario = 0;
+        String sqlSeq = "SELECT seq_usuario.NEXTVAL FROM dual";
+        try (PreparedStatement stmtSeq = conexao.prepareStatement(sqlSeq)) {
+            ResultSet rs = stmtSeq.executeQuery();
+            if (rs.next()) {
+                idUsuario = rs.getLong(1);
+            }
+        }
+
+        String sql = "INSERT INTO TB_USUARIO (ID_USUARIO, NR_CPF, NM_USUARIO, NM_EMAIL, DS_SENHA) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
-            stmt.setString(1, usuario.getCpf());
-            stmt.setString(2, usuario.getNome());
-            stmt.setString(3, usuario.getEmail());
-            stmt.setString(4, usuario.getSenha());
+            stmt.setLong(1, idUsuario);
+            stmt.setString(2, usuario.getCpf());
+            stmt.setString(3, usuario.getNome());
+            stmt.setString(4, usuario.getEmail());
+            stmt.setString(5, usuario.getSenha());
             stmt.executeUpdate();
+
         }
     }
+
+
+
+
+
+
 
     public Usuario validarLogin(String email, String senha) throws SQLException {
         String sql = "SELECT * FROM tb_usuario WHERE nm_email = ? AND ds_senha = ?";
@@ -49,6 +72,19 @@ public class UsuarioDao {
         }
         return null;
     }
+
+    public boolean usuarioExiste(String cpf) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM TB_USUARIO WHERE NR_CPF = ?";
+        try (PreparedStatement stmt = conexao.prepareStatement(sql)) {
+            stmt.setString(1, cpf);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        }
+        return false;
+    }
+
 
     public List<Usuario> getAll() throws SQLException {
         String sql = "SELECT * FROM tb_usuario";

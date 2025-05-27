@@ -2,6 +2,7 @@
 <%@ page import="br.com.fiap.fintech.model.Usuario" %>
 <%@ page import="br.com.fiap.fintech.model.Meta" %>
 <%@ page import="java.util.List" %>
+<%@ page import="br.com.fiap.fintech.model.Transacao" %>
 <%
   HttpSession sessao = request.getSession(false);
   Usuario usuarioLogado = (sessao != null) ? (Usuario) sessao.getAttribute("usuarioLogado") : null;
@@ -119,6 +120,13 @@
       width: 100%;
       color: white;
     }
+    .transactions-table th,
+    .transactions-table td {
+      text-align: center;
+      vertical-align: middle;
+    }
+
+
     .transactions-table th {
       color: #0df2c4;
       font-weight: 600;
@@ -286,39 +294,61 @@
           <thead>
           <tr>
             <th>Nome</th>
-            <th>Categoria</th>
+            <th>Descrição</th>
             <th>Valor</th>
             <th>Tipo</th>
           </tr>
           </thead>
           <tbody>
+          <%
+            List<Transacao> ultimasTransacoes = (List<Transacao>) request.getAttribute("ultimasTransacoes");
+            if (ultimasTransacoes != null && !ultimasTransacoes.isEmpty()) {
+              for (Transacao t : ultimasTransacoes) {
+          %>
           <tr>
-            <td>Salário</td>
-            <td>Renda</td>
-            <td>R$ 5.000,00</td>
-            <td>Entrada</td>
+            <td><%= t.getNmTransacao() %></td>
+            <td><%= t.getDsTransacao() != null ? t.getDsTransacao() : "-" %></td>
+            <td>R$ <%= String.format("%.2f", t.getVlTransacao()) %></td>
+            <td>
+              <%
+                String tipo = t.getTpTransacao();
+                if (tipo != null) {
+                  if (tipo.equalsIgnoreCase("E")) {
+              %>
+              ENTRADA
+              <%
+              } else if (tipo.equalsIgnoreCase("S")) {
+              %>
+              SAÍDA
+              <%
+              } else {
+              %>
+              <%= tipo %>
+              <%
+                }
+              } else {
+              %>
+              N/A
+              <%
+                }
+              %>
+            </td>
+
           </tr>
+          <%
+            }
+          } else {
+          %>
           <tr>
-            <td>Supermercado</td>
-            <td>Alimentação</td>
-            <td>R$ 600,00</td>
-            <td>Saída</td>
+            <td colspan="4">Nenhuma transação encontrada.</td>
           </tr>
-          <tr>
-            <td>Academia</td>
-            <td>Saúde</td>
-            <td>R$ 100,00</td>
-            <td>Saída</td>
-          </tr>
+          <%
+            }
+          %>
           </tbody>
         </table>
       </div>
 
-      <!-- Gráfico de Pizza -->
-      <div class="last-transactions-container">
-        <h5 class="card-title mb-4">Gastos por Categoria</h5>
-        <canvas id="graficoPizza"></canvas>
-      </div>
     </div>
   </div>
 

@@ -39,6 +39,38 @@ public class TransacaoDao {
 		return lista;
 	}
 
+	public List<Transacao> listarUltimasPorUsuario(Long idUsuario, int limite) throws Exception {
+		List<Transacao> lista = new ArrayList<>();
+		String sql = "SELECT * FROM TB_TRANSACAO WHERE TB_USUARIO_ID_USUARIO = ? ORDER BY DT_TRANSACAO DESC FETCH FIRST ? ROWS ONLY";
+
+		try (Connection conn = ConnectionManager.getConnection();
+			 PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+			stmt.setLong(1, idUsuario);
+			stmt.setInt(2, limite);
+
+			try (ResultSet rs = stmt.executeQuery()) {
+				while (rs.next()) {
+					Transacao t = new Transacao();
+					t.setIdTransacao(rs.getInt("ID_TRANSACAO"));
+					t.setIdUsuario(rs.getInt("TB_USUARIO_ID_USUARIO"));
+					t.setIdConta(rs.getInt("TB_CONTA_ID_CONTA"));
+					t.setVlTransacao(rs.getDouble("VL_TRANSACAO"));
+					t.setNmTransacao(rs.getString("NM_TRANSACAO"));
+					t.setDsTransacao(rs.getString("DS_TRANSACAO"));
+					t.setNmSegundaPessoa(rs.getString("NM_SEGUNDA_PESSOA"));
+					t.setNrContaSegPessoa(rs.getInt("NR_CONTA_SEG_PESSOA"));
+					t.setDtTransacao(rs.getDate("DT_TRANSACAO"));
+					t.setIdRecorrencia(rs.getInt("ID_RECORRENCIA"));
+					t.setTpTransacao(rs.getString("TP_TRANSACAO"));
+					lista.add(t);
+				}
+			}
+		}
+		return lista;
+	}
+
+
 	public void inserir(Transacao t) throws Exception {
 		String sql = "INSERT INTO TB_TRANSACAO " +
 				"(ID_TRANSACAO, TB_USUARIO_ID_USUARIO, TB_CONTA_ID_CONTA, VL_TRANSACAO, NM_TRANSACAO, DS_TRANSACAO, NM_SEGUNDA_PESSOA, NR_CONTA_SEG_PESSOA, DT_TRANSACAO, ID_RECORRENCIA, TP_TRANSACAO) " +

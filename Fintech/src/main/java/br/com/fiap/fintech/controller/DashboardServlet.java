@@ -9,7 +9,9 @@ import jakarta.servlet.http.HttpSession;
 
 import br.com.fiap.fintech.model.Usuario;
 import br.com.fiap.fintech.model.Meta;
+import br.com.fiap.fintech.model.Transacao;
 import br.com.fiap.fintech.dao.MetaDao;
+import br.com.fiap.fintech.dao.TransacaoDao;
 
 import java.io.IOException;
 import java.util.List;
@@ -18,6 +20,7 @@ import java.util.List;
 public class DashboardServlet extends HttpServlet {
 
     private MetaDao metaDao = new MetaDao();
+    private TransacaoDao transacaoDao = new TransacaoDao();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -35,12 +38,17 @@ public class DashboardServlet extends HttpServlet {
         }
 
         try {
-            // Buscar metas do usuário usando o ID do usuário logado
             Long idUsuario = usuarioLogado.getId();
+
+            // Buscar metas do usuário
             List<Meta> listaMetas = metaDao.getMetasByUsuario(idUsuario);
 
-            // Colocar as metas no request para a JSP
+            // Buscar as últimas 5 transações do usuário
+            List<Transacao> ultimasTransacoes = transacaoDao.listarUltimasPorUsuario(idUsuario, 5);
+
+            // Colocar dados no request
             request.setAttribute("listaMetas", listaMetas);
+            request.setAttribute("ultimasTransacoes", ultimasTransacoes);
             request.setAttribute("usuarioLogado", usuarioLogado);
 
             // Encaminhar para a página dashboard.jsp
@@ -48,7 +56,7 @@ public class DashboardServlet extends HttpServlet {
 
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("erro", "Erro ao carregar metas: " + e.getMessage());
+            request.setAttribute("erro", "Erro ao carregar dados do dashboard: " + e.getMessage());
             request.getRequestDispatcher("/erro.jsp").forward(request, response);
         }
     }

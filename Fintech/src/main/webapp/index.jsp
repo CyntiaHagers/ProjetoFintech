@@ -121,7 +121,8 @@
         <div class="login-box">
             <div class="logo">FinanceEasy</div>
             <div class="create-account">
-                Não tem uma conta? <a href="cadastro.jsp" class="text-info">Criar Conta</a>
+                Não tem uma conta? <a href="${pageContext.request.contextPath}/cadastro.jsp" class="text-info">Criar Conta</a>
+
             </div>
 
             <c:if test="${not empty erro}">
